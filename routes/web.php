@@ -7,3 +7,9 @@ Route::get('/', function () {
         'kanji' => config('kanji'),
     ]);
 });
+
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+    ]);
+});

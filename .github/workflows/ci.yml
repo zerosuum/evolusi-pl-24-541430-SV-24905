@@ -1,18 +1,36 @@
-name: ci
+name: delivery-pipeline
 
 on:
   push:
-    branches:
-      - dev
-      - main
   pull_request:
     branches:
       - dev
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  tests:
-    name: tests
+  build:
+    name: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: setup php
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+
+      - name: install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+  test:
+    name: test
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
@@ -31,28 +49,52 @@ jobs:
       - name: install dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
 
-      - name: generate app key
+      - name: generate application key
         run: php artisan key:generate
 
-      - name: run tests
+      - name: run automated tests
         run: php artisan test
 
-  code-style:
-    name: code-style
+      - name: check code style
+        run: php vendor/bin/pint --test
+
+  staging:
+    name: staging
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
+      - name: simulate staging deployment
+        run: echo "staging deployment simulation completed"
 
-      - name: setup php
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.4'
-          coverage: none
+  production:
+    name: production
+    needs: staging
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
 
-      - name: install dependencies
-        run: composer install --no-interaction --prefer-dist --no-progress
+    steps:
+      - name: 1 enable maintenance mode
+        run: echo "php artisan down --retry=60"
 
-      - name: check code style
-        run: ./vendor/bin/pint --test
+      - name: 2 pull latest code
+        run: echo "git pull origin main"
+
+      - name: 3 install production dependencies
+        run: echo "composer install --no-dev --optimize-autoloader"
+
+      - name: 4 run database migrations
+        run: echo "php artisan migrate --force"
+
+      - name: 5 rebuild application cache
+        run: |
+          echo "php artisan config:cache"
+          echo "php artisan route:cache"
+          echo "php artisan view:cache"
+
+      - name: 6 restart queue workers
+        run: echo "php artisan queue:restart"
+
+      - name: 7 disable maintenance mode
+        run: echo "php artisan up"
