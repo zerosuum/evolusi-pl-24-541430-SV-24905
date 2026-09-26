@@ -89,3 +89,39 @@ GitHub Actions menjalankan dua job:
 ## Author
 
 Della Nurizki
+
+## Delivery Pipeline
+
+Project menggunakan workflow GitHub Actions dengan empat tahap:
+
+`build → test → staging → production`
+
+### Build
+
+Job `build` memasang dependency Composer sebagai tahap awal persiapan aplikasi.
+
+### Test
+
+Job `test` menggunakan `needs: build`, menyiapkan environment Laravel, menghasilkan application key, lalu menjalankan `php artisan test` dan Laravel Pint.
+
+### Staging
+
+Job `staging` menggunakan `needs: test`, sehingga tahap ini hanya dapat dilanjutkan apabila automated test berhasil. Deployment staging pada tugas ini masih disimulasikan menggunakan `echo`.
+
+### Production
+
+Job `production` menggunakan `needs: staging` dan hanya diizinkan berjalan pada branch `main`. Job ini menggunakan GitHub Environment `production` dengan required reviewer.
+
+Tujuh langkah deployment Laravel disimulasikan sebagai `echo` pada workflow, sedangkan urutan perintah aslinya disimpan pada `deploy.sh`.
+
+### Deployment Steps
+
+1. mengaktifkan maintenance mode
+2. mengambil kode terbaru dari branch `main`
+3. memasang dependency production
+4. menjalankan migration
+5. membangun ulang configuration, route, dan view cache
+6. me-restart queue worker
+7. menonaktifkan maintenance mode
+
+Pada pengerjaan tugas ini, GitHub organization sedang dalam kondisi flagged sehingga workflow GitHub Actions tidak dapat dieksekusi secara normal. Validasi aplikasi dan automated test tetap dilakukan secara lokal.
