@@ -1,5 +1,5 @@
 export function filterKanjiCards(cards, query) {
-  const keyword = query.trim()
+  const keyword = query.trim().toLocaleLowerCase()
 
   if (!keyword) {
     return cards
@@ -8,6 +8,6 @@ export function filterKanjiCards(cards, query) {
   return cards.filter((card) =>
     [card.character, card.meaning, card.onyomi, card.kunyomi, card.example]
       .filter(Boolean)
-      .some((value) => String(value).includes(keyword)),
+      .some((value) => String(value).toLocaleLowerCase().includes(keyword)),
   )
 }
