@@ -125,3 +125,24 @@ Tujuh langkah deployment Laravel disimulasikan sebagai `echo` pada workflow, sed
 7. menonaktifkan maintenance mode
 
 Pada pengerjaan tugas ini, GitHub organization sedang dalam kondisi flagged sehingga workflow GitHub Actions tidak dapat dieksekusi secara normal. Validasi aplikasi dan automated test tetap dilakukan secara lokal.
+
+## Vue Frontend
+
+Aplikasi memiliki frontend Vue 3 terpisah di folder `frontend/`. Vue menggunakan Vue Router dengan halaman beranda dan halaman daftar kanji.
+
+Data daftar kanji diambil dari endpoint Laravel:
+
+`GET /api/kanji`
+
+Alamat backend tidak ditulis langsung di source code frontend. Nilainya dibaca dari environment variable:
+
+`VITE_API_URL`
+
+Untuk menjalankan frontend secara lokal:
+
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
