@@ -31,4 +31,11 @@ describe('filterKanjiCards', () => {
     expect(result).toHaveLength(1)
     expect(result[0].character).toBe('山')
   })
+
+  it('matches latin text without caring about letter case', () => {
+    const result = filterKanjiCards(cards, 'JEPANG')
+
+    expect(result).toHaveLength(1)
+    expect(result[0].character).toBe('日')
+  })
 })
