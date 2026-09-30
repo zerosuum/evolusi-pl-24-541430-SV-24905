@@ -1,0 +1,14 @@
+.git
+.github
+.env
+vendor
+node_modules
+**/node_modules
+frontend/.env
+frontend/dist
+database/database.sqlite
+storage/logs/*
+.DS_Store
+.phpunit.result.cache
+README.md
+*.log
